@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusType | Gaming Typing Test</title>
+    <title>ElioType | Gaming Typing Test</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -25,7 +25,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            overflow-x: hidden;
+            overflow: hidden;
             position: relative;
         }
 
@@ -44,16 +44,17 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             width: 100%;
             max-width: 900px;
+            z-index: 10;
         }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: 3.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #00ccff, #cc00ff);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -64,7 +65,7 @@
         .subtitle {
             font-size: 1.2rem;
             color: #a0a0ff;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .stats-container {
@@ -76,25 +77,25 @@
             border: 1px solid rgba(102, 51, 255, 0.4);
             border-radius: 12px;
             padding: 15px 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             backdrop-filter: blur(10px);
             box-shadow: 0 0 25px rgba(102, 51, 255, 0.2);
         }
 
         .stat-box {
             text-align: center;
-            padding: 10px 20px;
+            padding: 10px 15px;
         }
 
         .stat-value {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
             background: linear-gradient(45deg, #00ccff, #cc00ff);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .stat-label {
@@ -110,17 +111,18 @@
             background: rgba(15, 10, 40, 0.8);
             border: 1px solid rgba(102, 51, 255, 0.4);
             border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 25px;
+            margin-bottom: 20px;
             backdrop-filter: blur(10px);
             box-shadow: 0 0 30px rgba(102, 51, 255, 0.25);
+            min-height: 180px;
         }
 
         .timer-bar {
             height: 6px;
             background: rgba(102, 51, 255, 0.3);
             border-radius: 3px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             overflow: hidden;
         }
 
@@ -132,43 +134,33 @@
         }
 
         .text-display {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             line-height: 1.8;
-            margin-bottom: 25px;
-            min-height: 180px;
             color: #c0c0ff;
-            text-align: justify;
             letter-spacing: 0.5px;
             user-select: none;
             cursor: default;
+            position: relative;
+            height: 170px;
+            overflow: hidden;
+        }
+
+        .line {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
         }
 
         .word {
             display: inline-block;
-            margin: 0 8px 8px 0;
-            padding: 5px 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
+            margin-right: 12px;
+            margin-bottom: 5px;
         }
 
-        .word.active {
-            background: rgba(102, 51, 255, 0.2);
-            box-shadow: 0 0 15px rgba(102, 51, 255, 0.3);
-        }
-
-        .word.active .char.current {
+        .char {
+            display: inline-block;
             position: relative;
-        }
-
-        .word.active .char.current::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #00ffff;
-            animation: blink 1s infinite;
         }
 
         .char.correct {
@@ -185,12 +177,27 @@
             text-decoration: line-through;
         }
 
+        .char.current {
+            position: relative;
+        }
+
+        .char.current::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #00ffff;
+            animation: blink 1s infinite;
+        }
+
         .controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
             max-width: 900px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .btn {
@@ -219,28 +226,6 @@
 
         .btn.reset {
             background: linear-gradient(45deg, #ff6600, #ff3366);
-        }
-
-        .time-options {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            justify-content: center;
-        }
-
-        .time-option {
-            background: rgba(20, 15, 50, 0.6);
-            border: 1px solid rgba(102, 51, 255, 0.4);
-            color: #b0b0ff;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .time-option.active, .time-option:hover {
-            background: linear-gradient(45deg, #ff00cc, #3333ff);
-            color: white;
         }
 
         .result-modal {
@@ -334,30 +319,12 @@
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(102, 51, 255, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(102, 51, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(102, 51, 255, 0); }
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #8888cc;
-            font-size: 0.9rem;
-        }
-
         .instructions {
             background: rgba(20, 15, 50, 0.6);
             border: 1px solid rgba(102, 51, 255, 0.4);
             border-radius: 12px;
-            padding: 15px;
-            margin: 20px auto;
+            padding: 12px;
+            margin: 15px auto;
             max-width: 900px;
             text-align: center;
             font-size: 0.9rem;
@@ -371,17 +338,35 @@
             margin: 0 3px;
             font-family: 'Roboto Mono', monospace;
         }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 51, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(102, 51, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 51, 255, 0); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #8888cc;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>NEXUS<span style="color: #00ffff">TYPE</span></h1>
+        <h1>ELIO<span style="color: #00ffff">TYPE</span></h1>
         <div class="subtitle">Test your typing speed with gaming-inspired aesthetics</div>
     </div>
 
     <div class="instructions">
         <p>Type the text below. Press <span class="key">Space</span> to move to the next word.</p>
-        <p>Press <span class="key">Tab</span> to restart the test. Results will show after 30 seconds.</p>
+        <p>Press <span class="key">Backspace</span> to correct mistakes. Results show after 30 seconds.</p>
     </div>
 
     <div class="stats-container">
@@ -445,7 +430,6 @@
 
     <div class="footer">
         <p>Designed for gamers & typists • No accounts, no tracking • Just pure typing</p>
-        <p>Inspired by MonkeyType • Made with <i class="fas fa-heart" style="color:#ff3366"></i> for keyboard warriors</p>
     </div>
 
     <script>
@@ -467,6 +451,8 @@
             
             // Game state
             let words = [];
+            let lines = [];
+            let currentLine = 0;
             let wordIndex = 0;
             let charIndex = 0;
             let startTime, endTime;
@@ -497,11 +483,23 @@
             function initTest() {
                 // Generate random words
                 words = [];
-                for (let i = 0; i < 80; i++) {
+                for (let i = 0; i < 100; i++) {
                     words.push(wordBank[Math.floor(Math.random() * wordBank.length)]);
                 }
                 
+                // Split words into lines (each line has about 5-7 words)
+                lines = [];
+                let line = [];
+                for (let i = 0; i < words.length; i++) {
+                    line.push(words[i]);
+                    if (line.length >= 5 + Math.floor(Math.random() * 3) || i === words.length - 1) {
+                        lines.push(line);
+                        line = [];
+                    }
+                }
+                
                 // Reset game state
+                currentLine = 0;
                 wordIndex = 0;
                 charIndex = 0;
                 errors = 0;
@@ -521,7 +519,7 @@
                 errorsDisplay.textContent = '0';
                 
                 // Render words
-                renderWords();
+                renderLines();
                 
                 // Hide results
                 resultModal.classList.remove('active');
@@ -530,33 +528,53 @@
                 textDisplay.focus();
             }
             
-            // Render words to the display
-            function renderWords() {
+            // Render lines to the display (only 3 lines at a time)
+            function renderLines() {
                 textDisplay.innerHTML = '';
                 
-                words.forEach((word, idx) => {
-                    const wordSpan = document.createElement('span');
-                    wordSpan.classList.add('word');
+                // Always show current line and next two lines
+                for (let i = currentLine; i < Math.min(currentLine + 3, lines.length); i++) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.classList.add('line');
                     
-                    if (idx === wordIndex) {
-                        wordSpan.classList.add('active');
+                    if (i === currentLine) {
+                        lineDiv.classList.add('current-line');
                     }
                     
-                    for (let i = 0; i < word.length; i++) {
-                        const charSpan = document.createElement('span');
-                        charSpan.classList.add('char');
-                        charSpan.textContent = word[i];
-                        wordSpan.appendChild(charSpan);
-                    }
+                    lines[i].forEach((word, idx) => {
+                        const wordSpan = document.createElement('span');
+                        wordSpan.classList.add('word');
+                        
+                        if (i === currentLine && idx === wordIndex) {
+                            wordSpan.classList.add('active');
+                        }
+                        
+                        for (let j = 0; j < word.length; j++) {
+                            const charSpan = document.createElement('span');
+                            charSpan.classList.add('char');
+                            charSpan.textContent = word[j];
+                            
+                            // Check if this character has been typed
+                            if (i === currentLine && idx === wordIndex && j < charIndex) {
+                                charSpan.classList.add('correct');
+                            }
+                            
+                            wordSpan.appendChild(charSpan);
+                        }
+                        
+                        lineDiv.appendChild(wordSpan);
+                    });
                     
-                    textDisplay.appendChild(wordSpan);
-                    textDisplay.appendChild(document.createTextNode(' '));
-                });
+                    textDisplay.appendChild(lineDiv);
+                }
                 
                 // Set current character
-                const firstChar = textDisplay.querySelector('.word.active .char');
-                if (firstChar) {
-                    firstChar.classList.add('current');
+                const currentWord = textDisplay.querySelector('.line:first-child .word.active');
+                if (currentWord) {
+                    const chars = currentWord.querySelectorAll('.char');
+                    if (chars[charIndex]) {
+                        chars[charIndex].classList.add('current');
+                    }
                 }
             }
             
@@ -625,6 +643,12 @@
                     return;
                 }
                 
+                if (e.key === 'Backspace') {
+                    e.preventDefault();
+                    handleBackspace();
+                    return;
+                }
+                
                 if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
                     e.preventDefault();
                     handleCharacter(e.key);
@@ -633,9 +657,12 @@
             
             // Handle space key
             function handleSpace() {
-                const currentWord = words[wordIndex];
-                const wordElement = textDisplay.querySelectorAll('.word')[wordIndex];
-                const charElements = wordElement.querySelectorAll('.char');
+                const currentWord = lines[currentLine][wordIndex];
+                const currentWordElement = textDisplay.querySelector('.line:first-child .word.active');
+                
+                if (!currentWordElement) return;
+                
+                const charElements = currentWordElement.querySelectorAll('.char');
                 
                 // Mark any untyped characters as missing
                 if (charIndex < currentWord.length) {
@@ -650,41 +677,68 @@
                 wordIndex++;
                 charIndex = 0;
                 
-                // Update active word
-                document.querySelectorAll('.word').forEach((word, idx) => {
-                    word.classList.toggle('active', idx === wordIndex);
-                });
-                
-                // Scroll if needed
-                if (wordIndex > 5) {
-                    const activeWord = textDisplay.querySelector('.word.active');
-                    if (activeWord) {
-                        activeWord.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // If we've completed all words in the line, move to next line
+                if (wordIndex >= lines[currentLine].length) {
+                    currentLine++;
+                    wordIndex = 0;
+                    
+                    // If we're out of lines, end the test
+                    if (currentLine >= lines.length) {
+                        endTest();
+                        return;
                     }
                 }
                 
-                // Set current character for new word
-                const newWordElement = textDisplay.querySelectorAll('.word')[wordIndex];
-                if (newWordElement) {
-                    const firstChar = newWordElement.querySelector('.char');
-                    if (firstChar) {
-                        firstChar.classList.add('current');
+                // Re-render lines
+                renderLines();
+            }
+            
+            // Handle backspace
+            function handleBackspace() {
+                if (charIndex > 0) {
+                    // Move back one character
+                    charIndex--;
+                    
+                    // Remove incorrect/missing status from the character
+                    const currentWordElement = textDisplay.querySelector('.line:first-child .word.active');
+                    if (currentWordElement) {
+                        const charElements = currentWordElement.querySelectorAll('.char');
+                        if (charElements[charIndex]) {
+                            charElements[charIndex].classList.remove('incorrect', 'missing');
+                            
+                            // If this character was incorrect, decrease error count
+                            if (charElements[charIndex].classList.contains('incorrect')) {
+                                errors--;
+                            }
+                            
+                            // Decrease total character count
+                            totalChars--;
+                        }
                     }
-                }
-                
-                // Check if test is over
-                if (wordIndex >= words.length) {
-                    endTest();
+                    
+                    // Re-render to update the cursor
+                    renderLines();
+                } else if (wordIndex > 0) {
+                    // Move to previous word in the same line
+                    wordIndex--;
+                    const prevWord = lines[currentLine][wordIndex];
+                    charIndex = prevWord.length; // Start at the end of the previous word
+                    
+                    // Re-render lines
+                    renderLines();
                 }
             }
             
             // Handle character input
             function handleCharacter(key) {
-                if (wordIndex >= words.length) return;
+                if (currentLine >= lines.length) return;
                 
-                const currentWord = words[wordIndex];
-                const wordElement = textDisplay.querySelectorAll('.word')[wordIndex];
-                const charElements = wordElement.querySelectorAll('.char');
+                const currentWord = lines[currentLine][wordIndex];
+                const currentWordElement = textDisplay.querySelector('.line:first-child .word.active');
+                
+                if (!currentWordElement) return;
+                
+                const charElements = currentWordElement.querySelectorAll('.char');
                 
                 // Check if we're at the end of the word
                 if (charIndex >= currentWord.length) {
@@ -692,7 +746,9 @@
                 }
                 
                 // Remove current class from current character
-                charElements[charIndex].classList.remove('current');
+                if (charElements[charIndex]) {
+                    charElements[charIndex].classList.remove('current');
+                }
                 
                 // Check if character is correct
                 if (key === currentWord[charIndex]) {
