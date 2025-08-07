@@ -169,7 +169,6 @@
 
         .char.incorrect {
             color: #ff3366;
-            text-decoration: underline;
         }
 
         .char.missing {
@@ -367,6 +366,7 @@
     <div class="instructions">
         <p>Type the text below. Press <span class="key">Space</span> to move to the next word.</p>
         <p>Press <span class="key">Backspace</span> to correct mistakes. Results show after 30 seconds.</p>
+        <p>Press <span class="key">Enter</span> on results screen to restart</p>
     </div>
 
     <div class="stats-container">
@@ -423,7 +423,7 @@
                 </div>
             </div>
             <button class="btn restart-btn pulse" id="modal-restart">
-                <i class="fas fa-play"></i> Play Again
+                <i class="fas fa-play"></i> Play Again (or press Enter)
             </button>
         </div>
     </div>
@@ -452,6 +452,7 @@
             // Game state
             let words = [];
             let lines = [];
+            let charStatus = []; // To track character status
             let currentLine = 0;
             let wordIndex = 0;
             let charIndex = 0;
@@ -496,6 +497,17 @@
                         lines.push(line);
                         line = [];
                     }
+                }
+                
+                // Initialize character status tracking
+                charStatus = [];
+                for (let i = 0; i < lines.length; i++) {
+                    const lineStatus = [];
+                    for (let j = 0; j < lines[i].length; j++) {
+                        const wordStatus = new Array(lines[i][j].length).fill(null);
+                        lineStatus.push(wordStatus);
+                    }
+                    charStatus.push(lineStatus);
                 }
                 
                 // Reset game state
@@ -554,9 +566,14 @@
                             charSpan.classList.add('char');
                             charSpan.textContent = word[j];
                             
-                            // Check if this character has been typed
-                            if (i === currentLine && idx === wordIndex && j < charIndex) {
-                                charSpan.classList.add('correct');
+                            // Apply status if it exists
+                            if (charStatus[i] && charStatus[i][idx] && charStatus[i][idx][j] !== null) {
+                                charSpan.classList.add(charStatus[i][idx][j]);
+                            }
+                            
+                            // Set current character
+                            if (i === currentLine && idx === wordIndex && j === charIndex) {
+                                charSpan.classList.add('current');
                             }
                             
                             wordSpan.appendChild(charSpan);
@@ -566,15 +583,6 @@
                     });
                     
                     textDisplay.appendChild(lineDiv);
-                }
-                
-                // Set current character
-                const currentWord = textDisplay.querySelector('.line:first-child .word.active');
-                if (currentWord) {
-                    const chars = currentWord.querySelectorAll('.char');
-                    if (chars[charIndex]) {
-                        chars[charIndex].classList.add('current');
-                    }
                 }
             }
             
@@ -621,10 +629,18 @@
                 
                 // Show results
                 resultModal.classList.add('active');
+                
+                // Focus on modal for Enter key
+                modalRestart.focus();
             }
             
             // Handle key presses
             document.addEventListener('keydown', (e) => {
+                if (isTestFinished && e.key === 'Enter') {
+                    modalRestart.click();
+                    return;
+                }
+                
                 if (isTestFinished) return;
                 
                 if (!isTestActive && e.key !== 'Tab') {
@@ -658,16 +674,11 @@
             // Handle space key
             function handleSpace() {
                 const currentWord = lines[currentLine][wordIndex];
-                const currentWordElement = textDisplay.querySelector('.line:first-child .word.active');
-                
-                if (!currentWordElement) return;
-                
-                const charElements = currentWordElement.querySelectorAll('.char');
                 
                 // Mark any untyped characters as missing
                 if (charIndex < currentWord.length) {
                     for (let i = charIndex; i < currentWord.length; i++) {
-                        charElements[i].classList.add('missing');
+                        charStatus[currentLine][wordIndex][i] = 'missing';
                         errors++;
                     }
                     totalChars += currentWord.length - charIndex;
@@ -699,22 +710,19 @@
                     // Move back one character
                     charIndex--;
                     
-                    // Remove incorrect/missing status from the character
-                    const currentWordElement = textDisplay.querySelector('.line:first-child .word.active');
-                    if (currentWordElement) {
-                        const charElements = currentWordElement.querySelectorAll('.char');
-                        if (charElements[charIndex]) {
-                            charElements[charIndex].classList.remove('incorrect', 'missing');
-                            
-                            // If this character was incorrect, decrease error count
-                            if (charElements[charIndex].classList.contains('incorrect')) {
-                                errors--;
-                            }
-                            
-                            // Decrease total character count
-                            totalChars--;
-                        }
+                    // Reset status for this character
+                    if (charStatus[currentLine][wordIndex][charIndex] === 'incorrect') {
+                        errors--;
                     }
+                    
+                    // Only reset if it's incorrect or missing
+                    if (charStatus[currentLine][wordIndex][charIndex] === 'incorrect' || 
+                        charStatus[currentLine][wordIndex][charIndex] === 'missing') {
+                        totalChars--;
+                        correctChars--;
+                    }
+                    
+                    charStatus[currentLine][wordIndex][charIndex] = null;
                     
                     // Re-render to update the cursor
                     renderLines();
@@ -734,43 +742,31 @@
                 if (currentLine >= lines.length) return;
                 
                 const currentWord = lines[currentLine][wordIndex];
-                const currentWordElement = textDisplay.querySelector('.line:first-child .word.active');
-                
-                if (!currentWordElement) return;
-                
-                const charElements = currentWordElement.querySelectorAll('.char');
                 
                 // Check if we're at the end of the word
                 if (charIndex >= currentWord.length) {
                     return;
                 }
                 
-                // Remove current class from current character
-                if (charElements[charIndex]) {
-                    charElements[charIndex].classList.remove('current');
-                }
-                
                 // Check if character is correct
                 if (key === currentWord[charIndex]) {
-                    charElements[charIndex].classList.add('correct');
+                    charStatus[currentLine][wordIndex][charIndex] = 'correct';
                     correctChars++;
                 } else {
-                    charElements[charIndex].classList.add('incorrect');
+                    charStatus[currentLine][wordIndex][charIndex] = 'incorrect';
                     errors++;
                 }
                 
                 totalChars++;
                 charIndex++;
                 
-                // Set next character as current
-                if (charIndex < currentWord.length) {
-                    charElements[charIndex].classList.add('current');
-                }
-                
                 // Update stats
                 errorsDisplay.textContent = errors;
                 const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
                 accuracyDisplay.textContent = `${accuracy}%`;
+                
+                // Re-render to update character colors
+                renderLines();
             }
             
             // Reset button
