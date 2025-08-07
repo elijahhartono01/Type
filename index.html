@@ -140,6 +140,7 @@
             text-align: justify;
             letter-spacing: 0.5px;
             user-select: none;
+            cursor: default;
         }
 
         .word {
@@ -179,22 +180,9 @@
             text-decoration: underline;
         }
 
-        .input-area {
-            width: 100%;
-            background: rgba(25, 20, 60, 0.7);
-            border: 2px solid rgba(102, 51, 255, 0.5);
-            border-radius: 10px;
-            padding: 15px 20px;
-            font-size: 1.2rem;
-            color: #e0e0ff;
-            font-family: 'Roboto Mono', monospace;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .input-area:focus {
-            border-color: #6666ff;
-            box-shadow: 0 0 20px rgba(102, 102, 255, 0.4);
+        .char.missing {
+            color: #ff9933;
+            text-decoration: line-through;
         }
 
         .controls {
@@ -364,13 +352,24 @@
             font-size: 0.9rem;
         }
 
-        .footer a {
-            color: #b0b0ff;
-            text-decoration: none;
+        .instructions {
+            background: rgba(20, 15, 50, 0.6);
+            border: 1px solid rgba(102, 51, 255, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 900px;
+            text-align: center;
+            font-size: 0.9rem;
         }
 
-        .footer a:hover {
-            text-decoration: underline;
+        .key {
+            display: inline-block;
+            background: rgba(102, 51, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 0 3px;
+            font-family: 'Roboto Mono', monospace;
         }
     </style>
 </head>
@@ -378,6 +377,11 @@
     <div class="header">
         <h1>NEXUS<span style="color: #00ffff">TYPE</span></h1>
         <div class="subtitle">Test your typing speed with gaming-inspired aesthetics</div>
+    </div>
+
+    <div class="instructions">
+        <p>Type the text below. Press <span class="key">Space</span> to move to the next word.</p>
+        <p>Press <span class="key">Tab</span> to restart the test. Results will show after 30 seconds.</p>
     </div>
 
     <div class="stats-container">
@@ -390,7 +394,7 @@
             <div class="stat-label">Accuracy</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" id="timer">60</div>
+            <div class="stat-value" id="timer">30</div>
             <div class="stat-label">Time</div>
         </div>
         <div class="stat-box">
@@ -399,27 +403,16 @@
         </div>
     </div>
 
-    <div class="time-options">
-        <div class="time-option active" data-time="15">15s</div>
-        <div class="time-option" data-time="30">30s</div>
-        <div class="time-option" data-time="60">60s</div>
-        <div class="time-option" data-time="120">120s</div>
-    </div>
-
     <div class="typing-container">
         <div class="timer-bar">
             <div class="timer-progress" id="timer-progress"></div>
         </div>
         <div class="text-display" id="text-display"></div>
-        <input type="text" class="input-area" id="typing-input" placeholder="Start typing here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
 
     <div class="controls">
         <button class="btn reset" id="reset-btn">
-            <i class="fas fa-redo"></i> Reset Test
-        </button>
-        <button class="btn settings" id="settings-btn">
-            <i class="fas fa-cog"></i> Settings
+            <i class="fas fa-redo"></i> Restart Test
         </button>
     </div>
 
@@ -436,7 +429,7 @@
                     <div class="result-label">Accuracy</div>
                 </div>
                 <div class="result-stat">
-                    <div class="result-value time-value" id="result-time">60s</div>
+                    <div class="result-value time-value" id="result-time">30s</div>
                     <div class="result-label">Time</div>
                 </div>
                 <div class="result-stat">
@@ -459,14 +452,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             // DOM elements
             const textDisplay = document.getElementById('text-display');
-            const typingInput = document.getElementById('typing-input');
             const wpmDisplay = document.getElementById('wpm');
             const accuracyDisplay = document.getElementById('accuracy');
             const timerDisplay = document.getElementById('timer');
             const errorsDisplay = document.getElementById('errors');
             const timerProgress = document.getElementById('timer-progress');
             const resetBtn = document.getElementById('reset-btn');
-            const timeOptions = document.querySelectorAll('.time-option');
             const resultModal = document.getElementById('result-modal');
             const resultWpm = document.getElementById('result-wpm');
             const resultAcc = document.getElementById('result-acc');
@@ -480,11 +471,12 @@
             let charIndex = 0;
             let startTime, endTime;
             let timerInterval;
-            let timerDuration = 60;
+            let timerDuration = 30; // 30 seconds test
             let errors = 0;
             let totalChars = 0;
             let correctChars = 0;
             let isTestActive = false;
+            let isTestFinished = false;
             
             // Sample gaming-themed words
             const wordBank = [
@@ -516,11 +508,7 @@
                 totalChars = 0;
                 correctChars = 0;
                 isTestActive = false;
-                
-                // Clear input
-                typingInput.value = '';
-                typingInput.disabled = false;
-                typingInput.focus();
+                isTestFinished = false;
                 
                 // Reset timer
                 clearInterval(timerInterval);
@@ -537,6 +525,9 @@
                 
                 // Hide results
                 resultModal.classList.remove('active');
+                
+                // Set focus for typing
+                textDisplay.focus();
             }
             
             // Render words to the display
@@ -561,6 +552,12 @@
                     textDisplay.appendChild(wordSpan);
                     textDisplay.appendChild(document.createTextNode(' '));
                 });
+                
+                // Set current character
+                const firstChar = textDisplay.querySelector('.word.active .char');
+                if (firstChar) {
+                    firstChar.classList.add('current');
+                }
             }
             
             // Start the test
@@ -591,8 +588,8 @@
             // End the test
             function endTest() {
                 isTestActive = false;
+                isTestFinished = true;
                 clearInterval(timerInterval);
-                typingInput.disabled = true;
                 
                 // Calculate final stats
                 const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
@@ -608,112 +605,117 @@
                 resultModal.classList.add('active');
             }
             
-            // Handle typing input
-            typingInput.addEventListener('input', () => {
-                if (!isTestActive) {
+            // Handle key presses
+            document.addEventListener('keydown', (e) => {
+                if (isTestFinished) return;
+                
+                if (!isTestActive && e.key !== 'Tab') {
                     startTest();
                 }
                 
-                const typedValue = typingInput.value;
-                const currentWord = words[wordIndex];
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    initTest();
+                    return;
+                }
                 
-                // Update character status
+                if (e.key === ' ') {
+                    e.preventDefault();
+                    handleSpace();
+                    return;
+                }
+                
+                if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+                    handleCharacter(e.key);
+                }
+            });
+            
+            // Handle space key
+            function handleSpace() {
+                const currentWord = words[wordIndex];
                 const wordElement = textDisplay.querySelectorAll('.word')[wordIndex];
                 const charElements = wordElement.querySelectorAll('.char');
                 
-                // Reset all characters to default
-                charElements.forEach(charEl => {
-                    charEl.classList.remove('correct', 'incorrect', 'current');
+                // Mark any untyped characters as missing
+                if (charIndex < currentWord.length) {
+                    for (let i = charIndex; i < currentWord.length; i++) {
+                        charElements[i].classList.add('missing');
+                        errors++;
+                    }
+                    totalChars += currentWord.length - charIndex;
+                }
+                
+                // Move to next word
+                wordIndex++;
+                charIndex = 0;
+                
+                // Update active word
+                document.querySelectorAll('.word').forEach((word, idx) => {
+                    word.classList.toggle('active', idx === wordIndex);
                 });
                 
-                // Mark characters as correct/incorrect
-                let allCorrect = true;
-                for (let i = 0; i < Math.max(typedValue.length, currentWord.length); i++) {
-                    if (i < charElements.length) {
-                        if (i < typedValue.length) {
-                            if (typedValue[i] === currentWord[i]) {
-                                charElements[i].classList.add('correct');
-                            } else {
-                                charElements[i].classList.add('incorrect');
-                                allCorrect = false;
-                            }
-                            
-                            // Mark current character
-                            if (i === typedValue.length - 1) {
-                                charElements[i].classList.add('current');
-                            }
-                        } else if (i === typedValue.length) {
-                            charElements[i].classList.add('current');
-                        }
+                // Scroll if needed
+                if (wordIndex > 5) {
+                    const activeWord = textDisplay.querySelector('.word.active');
+                    if (activeWord) {
+                        activeWord.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }
                 
-                // Update character index
-                charIndex = typedValue.length;
+                // Set current character for new word
+                const newWordElement = textDisplay.querySelectorAll('.word')[wordIndex];
+                if (newWordElement) {
+                    const firstChar = newWordElement.querySelector('.char');
+                    if (firstChar) {
+                        firstChar.classList.add('current');
+                    }
+                }
                 
-                // Handle space to move to next word
-                if (typedValue.endsWith(' ')) {
-                    // If word is not completed, mark remaining as incorrect
-                    if (typedValue.trim().length < currentWord.length) {
-                        for (let i = typedValue.trim().length; i < currentWord.length; i++) {
-                            charElements[i].classList.add('incorrect');
-                            errors++;
-                        }
-                    }
-                    
-                    // Move to next word
-                    wordIndex++;
-                    charIndex = 0;
-                    typingInput.value = '';
-                    
-                    // Update active word
-                    document.querySelectorAll('.word').forEach((word, idx) => {
-                        word.classList.toggle('active', idx === wordIndex);
-                    });
-                    
-                    // Scroll if needed
-                    if (wordIndex > 5) {
-                        const activeWord = textDisplay.querySelector('.word.active');
-                        if (activeWord) {
-                            activeWord.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    }
-                    
-                    // Check if test is over
-                    if (wordIndex >= words.length) {
-                        endTest();
-                        return;
-                    }
-                    
-                    // Render words for new active word
-                    renderWords();
+                // Check if test is over
+                if (wordIndex >= words.length) {
+                    endTest();
+                }
+            }
+            
+            // Handle character input
+            function handleCharacter(key) {
+                if (wordIndex >= words.length) return;
+                
+                const currentWord = words[wordIndex];
+                const wordElement = textDisplay.querySelectorAll('.word')[wordIndex];
+                const charElements = wordElement.querySelectorAll('.char');
+                
+                // Check if we're at the end of the word
+                if (charIndex >= currentWord.length) {
+                    return;
+                }
+                
+                // Remove current class from current character
+                charElements[charIndex].classList.remove('current');
+                
+                // Check if character is correct
+                if (key === currentWord[charIndex]) {
+                    charElements[charIndex].classList.add('correct');
+                    correctChars++;
+                } else {
+                    charElements[charIndex].classList.add('incorrect');
+                    errors++;
+                }
+                
+                totalChars++;
+                charIndex++;
+                
+                // Set next character as current
+                if (charIndex < currentWord.length) {
+                    charElements[charIndex].classList.add('current');
                 }
                 
                 // Update stats
-                totalChars = typedValue.length;
-                correctChars = 0;
-                errors = 0;
-                
-                charElements.forEach(charEl => {
-                    if (charEl.classList.contains('correct')) correctChars++;
-                    if (charEl.classList.contains('incorrect')) errors++;
-                });
-                
                 errorsDisplay.textContent = errors;
                 const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
                 accuracyDisplay.textContent = `${accuracy}%`;
-            });
-            
-            // Handle time option changes
-            timeOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    timeOptions.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                    timerDuration = parseInt(option.dataset.time);
-                    timerDisplay.textContent = timerDuration;
-                    initTest();
-                });
-            });
+            }
             
             // Reset button
             resetBtn.addEventListener('click', initTest);
